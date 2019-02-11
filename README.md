@@ -1,68 +1,108 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Integrating IPFS with Ethereum project 101
 
-## Available Scripts
+## React / JS side
+### Create react-app
+```
+npx create-react-app ipfs
+```
 
-In the project directory, you can run:
+### Add IPFS library
+```
+cd ipfs
+npm install --save ipfs-http-client
+```
 
-### `npm start`
+### Create IPFS helper
+```
+var ipfsClient = require('ipfs-http-client')
+var ipfs = ipfsClient({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+export default ipfs;
+```
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+### Use the helper in your App.js file
+```
+import ipfs from './ipfs';
+```
 
-### `npm test`
+### Add scaffolding
+```
+  constructor(props) {
+    super(props)
+    this.state = {value: ''}
+  }
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  handleChange = (event) => {
+    this.setState({ value: event.target.value });
+  }
 
-### `npm run build`
+  handleAdd = async (event) => {
+    alert('A name was submitted: ' + this.state.value);
+    event.preventDefault();
+  }
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  handleRead = async (event) => {
+    event.preventDefault();
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+  }
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <form onSubmit={this.handleAdd}>
+            <input
+              name="text"
+              type="text"
+              style={{ fontSize: 25, textAlign: "center" }}
+              placeholder="Insert text"
+              onChange={this.handleChange}
+            />
+            <br />
+            <input type="submit" value="Add file" />
+          </form>
 
-### `npm run eject`
+          <br />
+          <form onSubmit={this.handleRead}>
+            <input
+              name="text"
+              type="text"
+              style={{ fontSize: 25, textAlign: "center" }}
+              placeholder="IPFS hash"
+              onChange={this.handleChange}
+            />
+            <br />
+            <input type="submit" value="Read a file" />
+          </form>
+        </header>
+      </div>
+    );
+  }
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Add IPFS content (in handleAdd)
+```
+    let ipfsContent = {
+      path: '/buidlams/buidl.txt',
+      content: ipfs.types.Buffer.from(JSON.stringify(this.state.value))
+    };
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    let results = await ipfs.add(ipfsContent);
+    let hash = results[0].hash;
+    console.log("IPFS hash: " + hash);
+    console.log("Address: https://gateway.ipfs.io/ipfs/" + hash);
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Read IPFS content (in handleRead)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+    let file = await ipfs.cat(this.state.value);
+    console.log(file.toString('utf8'));
+```
 
-## Learn More
+#### Example BUIDL log IPFS file
+`QmZVNsPTLt57KrgH9EW8FxhhrQo1gCio2iCkKzzANSNHZQ`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+----
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## Ethereum side

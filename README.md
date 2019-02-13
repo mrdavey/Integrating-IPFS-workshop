@@ -13,7 +13,7 @@ cd ipfs
 npm install --save ipfs-http-client
 ```
 
-### Create IPFS helper
+### Create IPFS helper 'ipfs.js'
 ```
 var ipfsClient = require('ipfs-http-client')
 var ipfs = ipfsClient({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
@@ -26,7 +26,7 @@ export default ipfs;
 import ipfs from './ipfs';
 ```
 
-### Add scaffolding
+### Add scaffolding to 'App.js' file
 ```
   constructor(props) {
     super(props)
@@ -204,6 +204,11 @@ export default getWeb3;
 ### Import web3 in App.js
 ```
 import getWeb3 from './getWeb3';
+```
+
+### Import the JSON representation of the contract
+```
+import ipfsContract from './contracts/Ipfs.json'
 ```
 
 ### Import IPFS contract
